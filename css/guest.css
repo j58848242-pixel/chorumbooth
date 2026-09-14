@@ -1,0 +1,194 @@
+/* --- ANTI SCROLLBAR PUTIH BERKEDIP & EFEK KEDIP HP --- */
+::-webkit-scrollbar { display: none; width: 0; height: 0; }
+html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- BACKGROUND RESPONSIF (DESKTOP VS MOBILE) --- */
+body {
+    background-image: url('../assets/images/bg-dashboard.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: var(--bg-color); /* Mengikuti var warna merah tua dari style.css */
+    margin: 0;
+    padding: 0;
+}
+
+@media (max-width: 767px) {
+    body {
+        background-image: url('../assets/images/bg-guest-mobile.webp');
+    }
+}
+
+/* --- KOTAK APLIKASI UTAMA (TRANSPARAN SEPENUHNYA) --- */
+.app-container {
+    width: 100%;
+    max-width: 480px; 
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0 auto;   
+    position: relative;
+    background: transparent !important; 
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5); 
+    overflow-x: hidden;
+}
+
+.step-section { 
+    display: none; 
+    flex-direction: column; 
+    width: 100%;
+    min-height: 100vh; 
+    min-height: 100dvh; 
+    padding: 15px 20px; 
+    background: transparent !important;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+.step-section.active { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =======================================
+   KOMPONEN TIPOGRAFI & UI YANG DIPERBARUI
+   ======================================= */
+
+.header { 
+    margin-top: 24px; 
+    margin-bottom: 24px; 
+}
+.header h2 { 
+    margin-bottom: 8px; /* Ukuran h2 otomatis mewarisi 26px dari style.css (Golden Ratio) */
+}
+.header p { 
+    color: var(--text-secondary); 
+    line-height: 1.5; /* Tambahan whitespace agar mata tidak lelah */
+    margin-bottom: 16px;
+}
+
+.form-group { width: 100%; }
+input[type="text"], textarea { 
+    width: 100%; 
+    background: rgba(0,0,0,0.5); 
+    border: 1px solid var(--border-color); 
+    color: var(--text-primary); /* Menyesuaikan dengan palet kontras putih */
+    padding: 16px; 
+    border-radius: 12px; 
+    font-size: 1rem; 
+    font-family: var(--font-main); /* Mengunci form dengan font Questrial */
+    outline: none; 
+    transition: all 0.3s;
+}
+input[type="text"]:focus, textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 10px rgba(204, 255, 0, 0.2); }
+
+.frame-carousel { flex: 1; display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 20px; }
+.frame-preview-wrapper { width: 100%; max-width: 280px; aspect-ratio: 9/16; position: relative; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+#framePreview { width: 100%; height: 100%; object-fit: contain; }
+.frame-badge { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); background: var(--surface-color); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; font-family: var(--font-main); border: 1px solid var(--border-color); white-space: nowrap; color: var(--text-primary); }
+
+.nav-btn { 
+    background: var(--surface-color); color: var(--accent-color); border: 1px solid var(--border-color); 
+    width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; font-weight: bold; 
+    cursor: pointer; backdrop-filter: blur(4px); transition: 0.2s; outline: none; 
+    font-family: var(--font-heading); /* Tombol navigasi < > menggunakan Antonio */
+}
+.nav-btn:active { transform: scale(0.9); background: var(--accent-color); color: #000; }
+
+#step-camera { padding: 15px 20px 0 20px; justify-content: flex-start; align-items: center; }
+
+.timer-controls { display: flex; justify-content: center; gap: 8px; padding: 8px 12px; border-radius: 25px; margin: 0 auto; width: max-content; }
+.timer-btn { 
+    background: transparent; color: var(--text-primary); border: 1px solid transparent; 
+    padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; 
+    cursor: pointer; transition: 0.2s; outline: none; 
+    font-family: var(--font-heading); /* Font Antonio untuk kesan UI canggih */
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.timer-btn.active { background: var(--accent-color); color: #000; box-shadow: 0 0 10px rgba(204, 255, 0, 0.4); }
+
+.filter-controls { display: flex; overflow-x: auto; gap: 10px; width: 100%; padding: 10px 0; margin-bottom: 5px; scrollbar-width: none; -ms-overflow-style: none; }
+.filter-controls::-webkit-scrollbar { display: none; }
+.filter-btn { 
+    flex-shrink: 0; background: rgba(0,0,0,0.6); color: var(--text-primary); 
+    border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 20px; 
+    font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.3s; 
+    backdrop-filter: blur(5px); outline: none;
+    font-family: var(--font-heading); /* Font Antonio */
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.filter-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(204, 255, 0, 0.1); }
+
+.camera-wrapper { position: relative; width: 100%; max-width: 480px; aspect-ratio: 4/3; height: auto; overflow: hidden; border-radius: var(--border-radius); box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 2px solid rgba(255,255,255,0.05); }
+#cameraStream { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); transition: filter 0.3s ease; }
+
+.countdown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 8rem; font-family: var(--font-heading); color: var(--text-primary); text-shadow: 0 0 20px rgba(0,0,0,0.8), 0 0 40px var(--accent-color); z-index: 20; pointer-events: none; }
+.pop-anim { animation: pulsePop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes pulsePop { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+
+.camera-reticle { position: absolute; width: 30px; height: 30px; border-color: rgba(204, 255, 0, 0.7); border-style: solid; z-index: 10; pointer-events: none;}
+.top-left { top: 15px; left: 15px; border-width: 3px 0 0 3px; }
+.top-right { top: 15px; right: 15px; border-width: 3px 3px 0 0; }
+.bottom-left { bottom: 15px; left: 15px; border-width: 0 0 3px 3px; }
+.bottom-right { bottom: 15px; right: 15px; border-width: 0 3px 3px 0; }
+
+.camera-actions { width: 100%; flex: 1; min-height: 120px; padding: 5px 0 15px 0; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.btn-capture { width: 75px; height: 75px; min-width: 75px; min-height: 75px; border-radius: 50%; background: transparent; border: 6px solid var(--text-primary); cursor: pointer; transition: all 0.2s; margin-bottom: 10px; display: block; box-shadow: 0 0 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3); outline: none; }
+.btn-capture:active { transform: scale(0.9); background: var(--accent-color); border-color: var(--accent-color); }
+.btn-capture:disabled { opacity: 0.5; cursor: not-allowed; transform: none; border-color: gray; }
+
+.thumbnail-container { display: flex; justify-content: center; gap: 8px; width: 100%; flex-wrap: wrap; }
+.thumbnail-item { position: relative; width: 60px; height: 45px; border-radius: 8px; border: 2px solid var(--text-secondary); background: #222; cursor: pointer; }
+.thumbnail-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+.btn-delete-thumb { position: absolute; top: -8px; right: -8px; background: var(--danger-color); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: bold; font-family: var(--font-main); z-index: 10; cursor: pointer; outline: none;}
+
+#step-adjust { justify-content: space-between; padding-bottom: env(safe-area-inset-bottom, 15px); }
+.adjust-header { margin-top: 10px; margin-bottom: 16px; }
+.adjust-header h2 { margin-bottom: 6px; } /* Bebas hardcode font-size, ikut Rasio Emas */
+.adjust-header p { margin-bottom: 0; color: var(--text-secondary); line-height: 1.5; }
+
+.adjust-workspace-container { flex: 1; display: flex; justify-content: center; align-items: center; min-height: 0; width: 100%; margin: 5px 0; }
+.adjust-workspace { position: relative; background: #000; overflow: hidden; border-radius: var(--border-radius); touch-action: none; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
+
+#adjustPhotoLayers { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.adjust-photo-item { position: absolute; object-fit: cover; will-change: transform; cursor: move; }
+#adjustFrameOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; transition: opacity 0.3s ease; }
+
+.thumbnail-item.active-edit { border-color: var(--accent-color); transform: scale(1.1); box-shadow: 0 4px 10px rgba(204, 255, 0, 0.4); }
+
+.adjust-bottom-panel { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+.edit-toolbar-minimal { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 2px; }
+.btn-tool { 
+    flex: 1; max-width: 130px; background: rgba(0, 0, 0, 0.5); color: var(--text-primary); 
+    border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; font-size: 0.85rem; 
+    cursor: pointer; transition: 0.2s; outline: none; 
+    font-family: var(--font-heading); /* Font Antonio */
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.btn-tool:active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+
+#adjustThumbnails { min-height: 50px; margin-top: 0; gap: 10px; }
+.action-row { display: flex; gap: 10px; width: 100%; margin-top: 2px; }
+
+.preview-container { width: 100%; max-width: 250px; aspect-ratio: 9/16; background: #000; margin: 0 auto; display: flex; justify-content: center; }
+#photoPreview, .final-image { width: 100%; height: 100%; object-fit: contain; }
+.final-image { border-radius: var(--border-radius); margin-bottom: 20px; max-height: 45vh; margin: 0 auto 20px; }
+.text-center { text-align: center; }
+
+.result-tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; width: 100%; }
+.tab-btn { 
+    flex: 1; background: rgba(255,255,255,0.1); color: var(--text-primary); border: 1px solid var(--border-color); 
+    padding: 10px 5px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 0.9rem; outline: none; 
+    font-family: var(--font-heading); /* Font Antonio */
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tab-btn.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+.tab-content { display: none; flex-direction: column; align-items: center; width: 100%; }
+.tab-content.active { display: flex; }
+
+.qr-container { background: white; padding: 20px; border-radius: 12px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; width: max-content; margin: 0 auto 15px auto;}
+#qrCode { width: 220px; height: 220px; }
+.spinner { width: 30px; height: 30px; border: 3px solid var(--border-color); border-top-color: var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;}

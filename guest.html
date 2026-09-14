@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CHORUM Photobooth</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/guest.css">
+    <style>
+        /* 1. ANTI-EYE FATIGUE SYSTEM & FULLSCREEN FIX (Misi 1) */
+        body, html {
+            margin: 0;
+            padding: 0;
+            /* Menggunakan dvh agar tidak terpotong URL bar di Safari iOS */
+            height: 100vh;
+            height: 100dvh; 
+            width: 100vw;
+            overflow-x: hidden; /* Hanya matikan scroll horizontal, biarkan vertical jika butuh */
+            background-color: #990d0c !important; 
+            color: #eaeaea !important; 
+        }
+
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: white;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease-out;
+            display: none;
+        }
+        
+        .camera-tools {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-camera-tool {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .btn-camera-tool.active {
+            background: var(--accent-color, #ccff00);
+            color: #000;
+            border-color: var(--accent-color, #ccff00);
+            box-shadow: 0 0 10px rgba(204, 255, 0, 0.4);
+        }
+
+        /* 2. VISUAL HAPTIC (Efek kejut saat tombol ditekan untuk iOS) */
+        button, .btn-action, .thumbnail-item {
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
+        }
+        button:active, .btn-action:active, .thumbnail-item:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* 3. KOTAK BERSINAR (ACTIVE THUMBNAIL) */
+        #adjustThumbnails .thumbnail-item {
+            opacity: 0.5;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+        #adjustThumbnails .thumbnail-item.active-edit {
+            opacity: 1;
+            border: 2px solid var(--accent-color, #ccff00);
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.5);
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        /* 4. FOOTER CHORUM 2026 */
+        .legal-footer {
+            text-align: center;
+            font-family: monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 20px 0 10px 0;
+            margin-top: auto;
+            text-transform: uppercase;
+        }
+
+        /* 5. OVERLAY ERROR KAMERA (Misi 2) */
+        #camera-error-overlay {
+            display: none; /* Disembunyikan secara default */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: white;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #camera-error-overlay h2 {
+            color: #ff4444;
+            margin-bottom: 15px;
+            font-family: var(--font-heading);
+        }
+
+        #camera-error-overlay p {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: #eaeaea;
+        }
+
+        #retry-camera-btn {
+            margin-top: 25px;
+            padding: 12px 24px;
+            background-color: var(--accent-color, #ccff00);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 0 15px rgba(204, 255, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="flashOverlay" class="flash-overlay"></div>
+
+    <div class="app-container">
+        
+        <section id="step-frame" class="step-section active">
+            <div class="header text-center adjust-header" style="margin-top: 20px;">
+                <h2 style="color: var(--accent-color);">Pilih Frame</h2>
+                <p>Pilih desain CHORUM favorit lu! ✨</p>
+            </div>
+            
+            <div class="frame-carousel">
+                <button class="nav-btn" id="btnPrevFrame">&lt;</button>
+                <div class="frame-preview-wrapper glass-panel">
+                    <img id="framePreview" src="" alt="Frame Preview">
+                    <div class="frame-badge" id="frameNameDisplay">Memuat Frame...</div>
+                </div>
+                <button class="nav-btn" id="btnNextFrame">&gt;</button>
+            </div>
+
+            <button class="btn-primary" id="btnConfirmFrame" style="margin-top: auto; margin-bottom: 20px;">Gunakan Frame Ini</button>
+        </section>
+
+        <section id="step-camera" class="step-section">
+            <div class="header text-center adjust-header" style="margin-top: 10px; margin-bottom: 10px;">
+                <h2>Waktunya Aksi</h2>
+                <p id="captureHelperText">Pose 1: Senyum Manis! 😊 (0/3)</p>
+            </div>
+
+            <div class="camera-tools">
+                <button class="btn-camera-tool" id="btnSwitchCamera">🔄 Putar Lensa</button>
+                <button class="btn-camera-tool" id="btnToggleFlash">💡 Flash: OFF</button>
+            </div>
+
+            <div class="timer-controls glass-panel">
+                <button class="timer-btn active" data-time="0">⚡ Off</button>
+                <button class="timer-btn" data-time="3">3s</button>
+                <button class="timer-btn" data-time="5">5s</button>
+                <button class="timer-btn" data-time="10">10s</button>
+            </div>
+
+            <div class="camera-wrapper" style="margin-top: 10px; margin-bottom: 10px; position: relative;">
+                <video id="cameraStream" autoplay playsinline></video>
+                <div id="countdownOverlay" class="countdown-overlay" style="display: none;">3</div>
+                
+                <div class="camera-reticle top-left"></div>
+                <div class="camera-reticle top-right"></div>
+                <div class="camera-reticle bottom-left"></div>
+                <div class="camera-reticle bottom-right"></div>
+
+                <div id="camera-error-overlay">
+                    <h2>📸 Kamera Terkunci!</h2>
+                    <p>Layar ini butuh akses kamera untuk memotret.</p>
+                    <br>
+                    <p><strong>Solusi:</strong> Klik "Izinkan" / "Allow" saat peramban meminta akses kamera.</p>
+                    <p><small style="color: #bbb;">(Khusus iOS/Safari: Cek ikon <b>aA</b> di URL bar atas dan pastikan kamera tidak diblokir)</small></p>
+                    <button id="retry-camera-btn" onclick="window.location.reload();">Muat Ulang Halaman</button>
+                </div>
+            </div>
+            
+            <div class="filter-controls" id="filterControls">
+                <button class="filter-btn active" data-filter="none">Normal</button>
+                <button class="filter-btn" data-filter="grayscale(100%)">B&W</button>
+                <button class="filter-btn" data-filter="sepia(100%)">Sepia</button>
+                <button class="filter-btn" data-filter="sepia(40%) contrast(120%) saturate(120%)">Vintage</button>
+                <button class="filter-btn" data-filter="brightness(110%) blur(0.5px) contrast(90%)">Soft</button>
+                <button class="filter-btn" data-filter="contrast(150%) grayscale(100%) brightness(80%)">Noir</button>
+                <button class="filter-btn" data-filter="saturate(150%) contrast(110%)">Vivid</button>
+            </div>
+
+            <div class="camera-actions">
+                <button class="btn-capture" id="btnCapture"></button>
+                <div class="thumbnail-container" id="thumbnailContainer"></div>
+                <button class="btn-primary" id="btnFinishCapture" style="display: none; width: 100%; margin-top: 15px;">Lanjut Edit Foto</button>
+            </div>
+            <canvas id="photoCanvas" style="display: none;"></canvas>
+        </section>
+
+        <section id="step-adjust" class="step-section">
+            <div class="header text-center adjust-header">
+                <h2 style="color: var(--accent-color);">Sesuaikan Posisi</h2>
+                <p>Ketuk foto di kanvas untuk memilihnya. 👆<br><span style="font-size: 0.85rem; color: #888;">Gunakan 2 jari untuk cubit (zoom) & putar.</span></p>
+            </div>
+            
+            <div class="adjust-workspace-container">
+                <div id="adjustWorkspace" class="adjust-workspace">
+                    <div id="adjustPhotoLayers"></div>
+                    <img id="adjustFrameOverlay" src="" alt="Frame Overlay" style="pointer-events: none;">
+                </div>
+            </div>
+
+            <div class="adjust-bottom-panel glass-panel" style="padding: 15px; margin-bottom: 15px;">
+                <div class="edit-toolbar-minimal" id="editToolbar">
+                    <button class="btn-tool" id="btnFlipH">↔️ Cermin</button>
+                    <button class="btn-tool" id="btnFlipV">↕️ Balik</button>
+                </div>
+                <div class="thumbnail-container" id="adjustThumbnails"></div>
+                <div class="action-row">
+                    <button class="btn-secondary" id="btnBackToCamera">Ulang</button>
+                    <button class="btn-primary" id="btnConfirmAdjust">Bungkus!</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="step-done" class="step-section">
+            <div class="header text-center" style="margin-top: 20px;">
+                <h2 style="color: var(--accent-color);">Bungkus Lek! 🎉</h2>
+                <p>Fotomu siap. Pilih tipe unduhan di bawah.</p>
+            </div>
+            
+            <div class="glass-panel" style="padding: 18px; margin-bottom: 20px; text-align: center; border: 1px solid var(--accent-color); background: rgba(204, 255, 0, 0.05);">
+                <h3 style="color: var(--text-primary); margin-bottom: 5px; font-family: var(--font-heading); font-size: 1.2rem;">SUPPORT CHORUM! 🚀</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 15px; color: var(--text-secondary);">Pamerin hasil fotomu ke IG Story dan jangan lupa tag kita ya!</p>
+                <a href="https://www.instagram.com/chorummm?igsi=MTlhZHczcW45N3Q5Yw==" target="_blank" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 10px 24px; width: auto; font-size: 0.9rem; background: var(--text-primary);">
+                    Follow @chorummm
+                </a>
+            </div>
+
+            <div class="result-tabs">
+                <button class="tab-btn active" data-target="tab-photo" style="flex: 1;">📸 Foto</button>
+                <button class="tab-btn" data-target="tab-gif" style="flex: 1;">🎞️ GIF</button>
+                <button class="tab-btn" data-target="tab-qr" style="flex: 1;">📲 QR</button>
+            </div>
+
+            <div class="tab-content active" id="tab-photo">
+                <img id="finalResult" src="" alt="Final" class="final-image glass-panel" style="padding: 5px;">
+                <a id="btnDownload" class="btn-primary" download="CHORUM_Photobooth.jpg" style="text-align:center; text-decoration:none; display:block; width:100%;">Download Foto HD</a>
+            </div>
+
+            <div class="tab-content" id="tab-gif">
+                <div id="gifLoading" style="text-align:center; padding:20px; color: var(--accent-color); font-weight: bold;">
+                    <div class="spinner"></div><br>Merakit Animasi GIF...
+                </div>
+                <img id="finalGif" src="" alt="GIF Result" class="final-image glass-panel" style="display:none; padding: 5px;">
+                <a id="btnDownloadGif" class="btn-primary" download="CHORUM_Animasi.gif" style="display:none; text-align:center; text-decoration:none; width:100%;">Download GIF</a>
+            </div>
+
+            <div class="tab-content" id="tab-qr">
+                <div id="qrLoading" style="text-align:center; padding:20px; color: var(--accent-color); font-weight: bold;">
+                    <div class="spinner"></div><br>Mengunggah Gambar Resolusi Tinggi... (Mohon tunggu 3-5 detik)
+                </div>
+                <div class="qr-container glass-panel" id="qrContainer" style="display: none; padding: 15px; margin-bottom: 15px;">
+                    <img id="qrCode" src="" alt="QR Code" style="width: 200px; height: 200px; display: block; margin: 0 auto; background: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <p id="qrHelperText" style="display:none; text-align:center; margin-bottom: 20px; color: var(--text-secondary); font-size: 0.9rem;">Teman lu bisa scan Barcode ini buat buka foto HD-nya.</p>
+            </div>
+            
+            <button class="btn-secondary" onclick="window.location.href='index.html'" style="margin-top: auto; margin-bottom: 20px;">Selesai & Kembali</button>
+        </section>
+
+        <div class="legal-footer"> Copyright © 2026 CHORUM</div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/guest.js?v=8.0"></script>
+</body>
+</html>

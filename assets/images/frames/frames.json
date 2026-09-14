@@ -1,0 +1,24 @@
+{
+  "is_event_active": true,
+  "status": "success",
+  "frames": [
+    {
+      "id": "frame_chorum_01",
+      "name": "Template CHORUM 2 Slot",
+      "slots": 2,
+      "url": "assets/images/frames/frame-macan-2-slot.png"
+    },
+    {
+      "id": "frame_mincow_02",
+      "name": "Template Mincow CHORUM",
+      "slots": 2,
+      "url": "assets/images/frames/frame-mincow-2-slot.png"
+    },
+    {
+      "id": "frame_sapi_03",
+      "name": "Template Sapi CHORUM",
+      "slots": 2,
+      "url": "assets/images/frames/frame-sapi-2-slot.png"
+    }
+  ]
+}
