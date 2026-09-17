@@ -50,11 +50,8 @@ const Haptic = {
 };
 
 // ==========================================
-// VARIABEL GLOBAL & BASE URL DINAMIS
+// 2. VARIABEL GLOBAL & KONEKSI FRAME JSON
 // ==========================================
-// Base URL otomatis mendeteksi domain tempat web ini dijalankan
-const DYNAMIC_BASE_URL = window.location.origin + window.location.pathname.replace('guest.html', '');
-
 window.guestData = window.guestData || { selectedFrame: '', photoBase64: '' };
 let videoStream = null;
 let currentFrameIndex = 0;
@@ -73,9 +70,6 @@ let isFlashActive = false;
 // Kumpulan Microcopy Dinamis
 const posePrompts = ["Senyum Manis! 😊", "Gaya Bebas! ✌️", "Slay Terus! 🔥", "Muka Jelek! 🤪", "Finger Heart! 🫰"];
 
-// ==========================================
-// 2. KONEKSI: MUAT FRAME JSON
-// ==========================================
 window.addEventListener('DOMContentLoaded', async () => {
     btnConfirmFrame.innerText = "Memuat Frame...";
     btnConfirmFrame.disabled = true;
@@ -87,6 +81,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     });
 
     try {
+        // Fetch JSON dengan cache buster agar selalu mendapat data terbaru
         const res = await fetch(FRAMES_JSON_URL + '?t=' + new Date().getTime()); 
         const result = await res.json();
         
@@ -101,6 +96,13 @@ window.addEventListener('DOMContentLoaded', async () => {
             btnConfirmFrame.innerText = "Gunakan Frame Ini";
             btnConfirmFrame.disabled = false;
             updateFrameUI();
+
+            // --- LOGIKA TOMBOL OPREC ---
+            const btnJoinChorum = document.getElementById('btnJoinChorum');
+            if (btnJoinChorum && result.is_oprec_active === true && result.oprec_link) {
+                btnJoinChorum.style.display = 'block'; 
+                btnJoinChorum.href = result.oprec_link; 
+            }
         }
     } catch(error) { 
         alert("Gagal memuat frame. Cek koneksi internet."); 
@@ -120,7 +122,7 @@ btnNextFrame.addEventListener('click', () => { currentFrameIndex = (currentFrame
 btnPrevFrame.addEventListener('click', () => { currentFrameIndex = (currentFrameIndex - 1 + framesList.length) % framesList.length; updateFrameUI(); });
 
 // ==========================================
-// 3. KAMERA PRO DENGAN PENANGANAN ERROR (Misi 2)
+// 3. KAMERA PRO DENGAN PENANGANAN ERROR
 // ==========================================
 btnConfirmFrame.addEventListener('click', () => {
     sectionFrame.classList.remove('active');
@@ -132,8 +134,6 @@ btnConfirmFrame.addEventListener('click', () => {
 
 async function startCamera() {
     const errorOverlay = document.getElementById('camera-error-overlay');
-    
-    // Sembunyikan error overlay tiap kali mencoba menghidupkan kamera
     if(errorOverlay) errorOverlay.style.display = 'none';
 
     if (videoStream) {
@@ -153,7 +153,6 @@ async function startCamera() {
         };
     } catch (error) { 
         console.error("Gagal mengakses kamera:", error);
-        // Munculkan layar error interaktif (Misi 2)
         if(errorOverlay) {
             errorOverlay.style.display = 'flex';
         } else {
@@ -398,7 +397,6 @@ btnFinishCapture.addEventListener('click', async () => {
     photoTransforms = []; 
 
     capturedPhotos.forEach((photoUrl, index) => {
-        // Taktik 2: Elemen bisa diklik langsung di kanvas atas
         const slotDiv = document.createElement('div');
         slotDiv.style.position = 'absolute';
         slotDiv.style.top = `${index * slotHeight}px`;
@@ -407,7 +405,6 @@ btnFinishCapture.addEventListener('click', async () => {
         slotDiv.style.height = `${slotHeight}px`;
         slotDiv.style.overflow = 'hidden';
         
-        // Sensor sentuh untuk memilih foto langsung dari layar utama
         slotDiv.addEventListener('mousedown', () => { Haptic.tap(); setActiveEdit(index); });
         slotDiv.addEventListener('touchstart', () => { Haptic.tap(); setActiveEdit(index); }, {passive: true});
 
@@ -423,7 +420,6 @@ btnFinishCapture.addEventListener('click', async () => {
         img.style.width = '100%'; 
         img.style.height = 'auto'; 
         img.style.transform = `translate(calc(-50% + 0px), calc(-50% + 0px)) rotate(0deg) scale(1, 1)`;
-        // Taktik 1: Animasi transisi Spotlight (Lampu Sorot)
         img.style.transition = 'opacity 0.3s ease, filter 0.3s ease';
         
         slotDiv.appendChild(img);
@@ -438,18 +434,15 @@ btnFinishCapture.addEventListener('click', async () => {
     setActiveEdit(0); 
 });
 
-// LOGIKA UX: SPOTLIGHT (LAMPU SOROT) & ACTIVE BOX
 function setActiveEdit(index) {
     activeEditIndex = index;
-    // 1. Kotak Thumbnail Menyala
     document.querySelectorAll('#adjustThumbnails .thumbnail-item').forEach((el, i) => { 
         el.classList.toggle('active-edit', i === index); 
     });
-    // 2. Spotlight Kanvas Utama (Meredupkan yang tidak diedit)
     document.querySelectorAll('.adjust-photo-item').forEach((img, i) => { 
         img.parentElement.style.zIndex = i === index ? '5' : '1'; 
-        img.style.opacity = i === index ? '1' : '0.4'; // Foto lain meredup 40%
-        img.style.filter = i === index ? 'none' : 'grayscale(30%)'; // Foto lain agak pucat
+        img.style.opacity = i === index ? '1' : '0.4'; 
+        img.style.filter = i === index ? 'none' : 'grayscale(30%)'; 
     });
 }
 
@@ -524,7 +517,7 @@ btnBackToCamera.addEventListener('click', () => {
 });
 
 // ==========================================
-// 5. RENDER FOTO (HD 90%)
+// 5. RENDER FOTO (HD)
 // ==========================================
 btnConfirmAdjust.addEventListener('click', async () => {
     const originalText = btnConfirmAdjust.innerText;
@@ -589,7 +582,7 @@ btnConfirmAdjust.addEventListener('click', async () => {
 });
 
 // ==========================================
-// 6. GENERATOR QR CODE DENGAN DYNAMIC BASE URL
+// 6. GENERATOR QR CODE (MENGGUNAKAN BASE_WEB_URL)
 // ==========================================
 async function generateQRCode(compressedBase64) {
     qrLoading.style.display = 'block';
@@ -611,8 +604,9 @@ async function generateQRCode(compressedBase64) {
         if (result.success) {
             const imgUrl = result.data.display_url; 
             const safeBase64Data = encodeURIComponent(btoa(imgUrl));
-            // Gunakan DYNAMIC_BASE_URL agar QR Code cocok dengan domain baru
-            const viewerUrl = `${DYNAMIC_BASE_URL}view.html?data=${safeBase64Data}`; 
+            
+            // Rute ini 100% menggunakan URL dari file api.js
+            const viewerUrl = `${BASE_WEB_URL}view.html?data=${safeBase64Data}`; 
             
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(viewerUrl)}`;
             qrCodeImg.src = qrApiUrl;
