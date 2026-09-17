@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>CHORUMbooth - Ambil Foto</title>
+    <title>CHORUM Photobooth - Ambil Foto</title>
     <meta name="description" content="Kreasikan gayamu dan ambil foto gratis di CHORUMbooth!">
     <meta property="og:title" content="CHORUMbooth - Ambil Foto">
 
@@ -145,6 +145,28 @@
             font-size: 1rem;
             box-shadow: 0 0 15px rgba(204, 255, 0, 0.3);
         }
+
+        /* 6. STYLE UNTUK TOMBOL DUKUNGAN (OPREC & FOLLOW) */
+        .action-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap; /* Agar aman di layar sangat kecil */
+        }
+        .action-buttons-container .btn-primary {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        /* Tombol Join khusus, warna dibedakan sedikit agar menarik */
+        #btnJoinChorum {
+            background: var(--accent-color, #ccff00);
+            color: #000;
+            display: none; /* Sembunyikan default, dimunculkan oleh JS nanti */
+        }
     </style>
 </head>
 <body>
@@ -261,9 +283,19 @@
             <div class="glass-panel" style="padding: 18px; margin-bottom: 20px; text-align: center; border: 1px solid var(--accent-color); background: rgba(204, 255, 0, 0.05);">
                 <h3 style="color: var(--text-primary); margin-bottom: 5px; font-family: var(--font-heading); font-size: 1.2rem;">SUPPORT CHORUM! 🚀</h3>
                 <p style="font-size: 0.85rem; margin-bottom: 15px; color: var(--text-secondary);">Pamerin hasil fotomu ke IG Story dan jangan lupa tag kita ya!</p>
-                <a href="https://www.instagram.com/chorummm?igsi=MTlhZHczcW45N3Q5Yw==" target="_blank" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 10px 24px; width: auto; font-size: 0.9rem; background: var(--text-primary);">
-                    Follow @chorummm
-                </a>
+                
+                <!-- CONTAINER FLEXBOX UNTUK TOMBOL DUKUNGAN -->
+                <div class="action-buttons-container">
+                    <a href="https://www.instagram.com/chorummm?igsi=MTlhZHczcW45N3Q5Yw==" target="_blank" class="btn-primary" style="text-decoration: none; background: var(--text-primary); color: #000;">
+                        Follow @chorummm
+                    </a>
+                    
+                    <!-- TOMBOL JOIN OPREC (Di-hide default, dikendalikan via JS nanti) -->
+                    <a href="#" target="_blank" id="btnJoinChorum" class="btn-primary" style="text-decoration: none;">
+                        Join CHORUM
+                    </a>
+                </div>
+                
             </div>
 
             <div class="result-tabs">
