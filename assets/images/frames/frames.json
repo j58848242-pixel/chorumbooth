@@ -1,6 +1,8 @@
 {
   "is_event_active": true,
   "status": "success",
+  "is_oprec_active": true,
+  "oprec_link": "https://docs.google.com/forms/d/e/1FAIpQLScttSIKm6xqqdTANCcetx_hoH8kVq0KrE7CvyBQgFfm85Wzfg/viewform?fbzx=6973466669862180060",
   "frames": [
     {
       "id": "frame_chorum_01",
