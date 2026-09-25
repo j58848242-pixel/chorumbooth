@@ -21,6 +21,12 @@
       "name": "Template Sapi CHORUM",
       "slots": 2,
       "url": "assets/images/frames/frame-sapi-2-slot.png"
+    },
+    {
+      "id": "frame_sapi_04",
+      "name": "Template yellow CHORUM",
+      "slots": 2,
+      "url": "assets/images/frames/frame-yellow-2-slot.png"
     }
   ]
 }
